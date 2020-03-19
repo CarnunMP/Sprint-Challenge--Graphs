@@ -2,7 +2,10 @@ from room import Room
 from player import Player
 from world import World
 
-import random
+from util import Stack
+from helpers import get_random_unexplored_direction, get_opposite_direction, bf_backtrack
+
+# import random
 from ast import literal_eval
 
 # Load world
@@ -30,32 +33,48 @@ player = Player(world.starting_room)
 traversal_path = []
 
 ### Carnun:
-def get_traversal_graph(room_graph, player) {
+def traverse_graph(room_graph, player):
     # keep track of traversal_graph, starting in first room
+    new_room = {'n': '?', 's': '?', 'w': '?', 'e': '?'}
+    traversal_graph = {
+        0: new_room
+    }
     # keep track of a room stack, starting at first room
-    # while there's a room in the stack
-        # pop it
-        # add it to traversal_path
-        # if the room has unexplored exits, randomly pick one of them
-            # move there
-            # update traversal_graph (both exited and entered room!)
-        # else, do a bfs to find shortest path to an unexplored room, and move there
-            # call helper to get path
-            # take path (and update traversal_path accordingly)
-}
+    to_visit = Stack()
+    to_visit.push(0)
 
-# helper
-def bf_backtrack(traversal_graph, current_room):
-    # keep track of to_visit queue (of paths)
-    # keep track of visited
-    # while rooms in to_visit
-        # dequeue
-        # if room hasn't been visited,
-            # if it's the target room (i.e. it has at least one unexplored exit)
-                # return path
-            # else
-                # add the room to visited
-                # loop over adjacent rooms and add them to to_visit
+    # while there's a room in the stack
+    while to_visit.size() > 0:
+        # pop it
+        current_room_id = to_visit.pop()
+        # update traversal_path
+        traversal_path.append(current_room_id)
+
+        # if the room has unexplored exits, randomly pick one of them
+        random_unexplored_direction = get_random_unexplored_direction(current_room_id, traversal_graph)
+        if random_unexplored_direction != None:
+            # move there
+            player.travel(random_unexplored_direction)
+            # update traversal_graph (both exited and entered room!)
+            traversal_graph[player.current_room.id] = new_room
+            traversal_graph[player.current_room.id][get_opposite_direction(random_unexplored_direction)] = current_room_id
+            traversal_graph[current_room_id][random_unexplored_direction] = player.current_room.id
+
+            to_visit.push(player.current_room.id)
+        # else, do a bfs to find shortest path to an unexplored room, and move there
+        else:
+            # call helper to get path
+            backtrack_path = bf_backtrack(traversal_graph, current_room_id)
+            # take path (and update traversal_path accordingly)
+            for direction in backtrack_path:
+                player.travel(direction)
+                traversal_path.append(direction)
+
+            to_visit.push(player.current_room.id)
+
+
+traverse_graph(room_graph, player)     
+
 
 ###
 
