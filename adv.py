@@ -13,8 +13,8 @@ world = World()
 # map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
-# map_file = "maps/test_loop_fork.txt"
-map_file = "maps/main_maze.txt"
+map_file = "maps/test_loop_fork.txt"
+# map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -29,7 +29,35 @@ player = Player(world.starting_room)
 # traversal_path = ['n', 'n']
 traversal_path = []
 
+### Carnun:
+def get_traversal_graph(room_graph, player) {
+    # keep track of traversal_graph, starting in first room
+    # keep track of a room stack, starting at first room
+    # while there's a room in the stack
+        # pop it
+        # add it to traversal_path
+        # if the room has unexplored exits, randomly pick one of them
+            # move there
+            # update traversal_graph (both exited and entered room!)
+        # else, do a bfs to find shortest path to an unexplored room, and move there
+            # call helper to get path
+            # take path (and update traversal_path accordingly)
+}
 
+# helper
+def bf_backtrack(traversal_graph, current_room):
+    # keep track of to_visit queue (of paths)
+    # keep track of visited
+    # while rooms in to_visit
+        # dequeue
+        # if room hasn't been visited,
+            # if it's the target room (i.e. it has at least one unexplored exit)
+                # return path
+            # else
+                # add the room to visited
+                # loop over adjacent rooms and add them to to_visit
+
+###
 
 # TRAVERSAL TEST
 visited_rooms = set()
