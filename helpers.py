@@ -53,7 +53,7 @@ def bf_backtrack(traversal_graph, current_room_id):
         # if room hasn't been visited,
         if current_room_id not in visited:
             # if it's the target room (i.e. it has at least one unexplored exit)
-            if get_random_unexplored_direction != None:
+            if current_room_id == None or get_random_unexplored_direction(current_room_id, traversal_graph) != None:
                 # return path
                 return path
             # else
@@ -61,5 +61,6 @@ def bf_backtrack(traversal_graph, current_room_id):
             visited.add(current_room_id)
             # loop over adjacent rooms and add them to to_visit
             for direction in traversal_graph[current_room_id]:
-                to_visit.enqueue(traversal_graph[current_room_id][direction])
-                paths.enqueue(path + [direction])
+                if traversal_graph[current_room_id][direction] != None:
+                    to_visit.enqueue(traversal_graph[current_room_id][direction])
+                    paths.enqueue(path + [direction])

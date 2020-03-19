@@ -16,8 +16,8 @@ world = World()
 # map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
-map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+# map_file = "maps/test_loop_fork.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -45,11 +45,9 @@ def traverse_graph(room_graph, player):
     to_visit.push(0)
 
     # while there's a room in the stack
-    while to_visit.size() > 0:
+    while to_visit.size() > 0 and len(traversal_graph) < len(room_graph):
         # pop it
         current_room_id = to_visit.pop()
-        # update traversal_path
-        traversal_path.append(current_room_id)
 
         # if the room has unexplored exits, randomly pick one of them
         random_unexplored_direction = get_random_unexplored_direction(current_room_id, traversal_graph)
@@ -57,10 +55,13 @@ def traverse_graph(room_graph, player):
             # move there
             player.travel(random_unexplored_direction)
             # update traversal_graph (both exited and entered room!)
-            traversal_graph[player.current_room.id] = get_new_room(player.current_room.get_exits())
+            if player.current_room.id not in traversal_graph:
+                traversal_graph[player.current_room.id] = get_new_room(player.current_room.get_exits())
             traversal_graph[player.current_room.id][get_opposite_direction(random_unexplored_direction)] = current_room_id
             traversal_graph[current_room_id][random_unexplored_direction] = player.current_room.id
-
+            # and traversal path
+            traversal_path.append(random_unexplored_direction)
+            # and push new room to to_visit
             to_visit.push(player.current_room.id)
         # else, do a bfs to find shortest path to an unexplored room, and move there
         else:
