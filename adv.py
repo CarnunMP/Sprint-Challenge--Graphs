@@ -3,7 +3,7 @@ from player import Player
 from world import World
 
 from util import Stack
-from helpers import get_random_unexplored_direction, get_opposite_direction, bf_backtrack
+from helpers import get_new_room, get_random_unexplored_direction, get_opposite_direction, bf_backtrack
 
 # import random
 from ast import literal_eval
@@ -35,9 +35,10 @@ traversal_path = []
 ### Carnun:
 def traverse_graph(room_graph, player):
     # keep track of traversal_graph, starting in first room
-    new_room = {'n': '?', 's': '?', 'w': '?', 'e': '?'}
+    exits = player.current_room.get_exits()
+
     traversal_graph = {
-        0: new_room
+        0: get_new_room(exits)
     }
     # keep track of a room stack, starting at first room
     to_visit = Stack()
@@ -56,7 +57,7 @@ def traverse_graph(room_graph, player):
             # move there
             player.travel(random_unexplored_direction)
             # update traversal_graph (both exited and entered room!)
-            traversal_graph[player.current_room.id] = new_room
+            traversal_graph[player.current_room.id] = get_new_room(player.current_room.get_exits())
             traversal_graph[player.current_room.id][get_opposite_direction(random_unexplored_direction)] = current_room_id
             traversal_graph[current_room_id][random_unexplored_direction] = player.current_room.id
 

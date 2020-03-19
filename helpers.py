@@ -2,6 +2,14 @@ import random
 from util import Queue
 
 # helpers
+def get_new_room(exits):
+    new_room = {'n': None, 's': None, 'w': None, 'e': None}
+
+    for direction in exits:
+        new_room[direction] = '?'
+
+    return new_room
+
 def get_random_unexplored_direction(room_id, traversal_graph):
     exits = traversal_graph[room_id]
     unexplored_exits = []
