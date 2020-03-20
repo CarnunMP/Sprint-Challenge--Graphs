@@ -75,25 +75,30 @@ def traverse_graph(room_graph, player):
             to_visit.push(player.current_room.id)
 
 
-traverse_graph(room_graph, player)     
-
+# traverse_graph(room_graph, player)     
 
 ###
 
-# TRAVERSAL TEST
-visited_rooms = set()
-player.current_room = world.starting_room
-visited_rooms.add(player.current_room)
+while len(traversal_path) > 960 or traversal_path == []: # modification
+    # TRAVERSAL TEST
+    visited_rooms = set()
+    player.current_room = world.starting_room
+    
+    traversal_path = [] # modification
+    traverse_graph(room_graph, player) # modification
+    player.current_room = world.starting_room # modification
 
-for move in traversal_path:
-    player.travel(move)
     visited_rooms.add(player.current_room)
 
-if len(visited_rooms) == len(room_graph):
-    print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
-else:
-    print("TESTS FAILED: INCOMPLETE TRAVERSAL")
-    print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
+    for move in traversal_path:
+        player.travel(move)
+        visited_rooms.add(player.current_room)
+
+    if len(visited_rooms) == len(room_graph):
+        print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
+    else:
+        print("TESTS FAILED: INCOMPLETE TRAVERSAL")
+        print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
 
 
 
