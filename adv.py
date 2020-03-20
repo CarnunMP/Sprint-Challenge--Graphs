@@ -2,7 +2,11 @@ from room import Room
 from player import Player
 from world import World
 
-import random
+from util import Stack
+from helpers import get_new_room, get_random_unexplored_direction, get_opposite_direction, bf_backtrack
+from random import randint
+
+# import random
 from ast import literal_eval
 
 # Load world
@@ -29,34 +33,87 @@ player = Player(world.starting_room)
 # traversal_path = ['n', 'n']
 traversal_path = []
 
+### Carnun:
+def traverse_graph(room_graph, player):
+    # keep track of traversal_graph, starting in first room
+    exits = player.current_room.get_exits()
+
+    traversal_graph = {
+        player.current_room.id: get_new_room(exits)
+    }
+    # keep track of a room stack, starting at first room
+    to_visit = Stack()
+    to_visit.push(player.current_room.id)
+
+    # while there's a room in the stack
+    while to_visit.size() > 0 and len(traversal_graph) < len(room_graph):
+        # pop it
+        current_room_id = to_visit.pop()
+
+        # if the room has unexplored exits, randomly pick one of them
+        random_unexplored_direction = get_random_unexplored_direction(current_room_id, traversal_graph)
+        if random_unexplored_direction != None:
+            # move there
+            player.travel(random_unexplored_direction)
+            # update traversal_graph (both exited and entered room!)
+            if player.current_room.id not in traversal_graph:
+                traversal_graph[player.current_room.id] = get_new_room(player.current_room.get_exits())
+            traversal_graph[player.current_room.id][get_opposite_direction(random_unexplored_direction)] = current_room_id
+            traversal_graph[current_room_id][random_unexplored_direction] = player.current_room.id
+            # and traversal path
+            traversal_path.append(random_unexplored_direction)
+            # and push new room to to_visit
+            to_visit.push(player.current_room.id)
+        # else, do a bfs to find shortest path to an unexplored room, and move there
+        else:
+            # call helper to get path
+            backtrack_path = bf_backtrack(traversal_graph, current_room_id)
+            # take path (and update traversal_path accordingly)
+            for direction in backtrack_path:
+                player.travel(direction)
+                traversal_path.append(direction)
+
+            to_visit.push(player.current_room.id)
 
 
-# TRAVERSAL TEST
-visited_rooms = set()
-player.current_room = world.starting_room
-visited_rooms.add(player.current_room)
+# traverse_graph(room_graph, player)     
 
-for move in traversal_path:
-    player.travel(move)
+###
+
+while len(traversal_path) > 960 or traversal_path == []: # modification
+    # TRAVERSAL TEST
+    visited_rooms = set()
+    random_room = world.rooms[randint(0, len(world.rooms) - 1)] # modification
+    # player.current_room = world.starting_room
+    player.current_room = random_room # modification
+    
+    traversal_path = [] # modification
+    traverse_graph(room_graph, player) # modification
+    player.current_room = random_room # modification
+
     visited_rooms.add(player.current_room)
 
-if len(visited_rooms) == len(room_graph):
-    print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
-else:
-    print("TESTS FAILED: INCOMPLETE TRAVERSAL")
-    print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
+    for move in traversal_path:
+        player.travel(move)
+        visited_rooms.add(player.current_room)
+
+    if len(visited_rooms) == len(room_graph):
+        print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
+    else:
+        print("TESTS FAILED: INCOMPLETE TRAVERSAL")
+        print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
 
 
 
 #######
 # UNCOMMENT TO WALK AROUND
 #######
-player.current_room.print_room_description(player)
-while True:
-    cmds = input("-> ").lower().split(" ")
-    if cmds[0] in ["n", "s", "e", "w"]:
-        player.travel(cmds[0], True)
-    elif cmds[0] == "q":
-        break
-    else:
-        print("I did not understand that command.")
+# player.current_room.print_room_description(player)
+# while True:
+#     cmds = input("-> ").lower().split(" ")
+#     if cmds[0] in ["n", "s", "e", "w"]:
+#         player.travel(cmds[0], True)
+#     elif cmds[0] == "q":
+#         break
+#     else:
+#         print("I did not understand that command.")
