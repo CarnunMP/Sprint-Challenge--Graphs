@@ -4,6 +4,7 @@ from world import World
 
 from util import Stack
 from helpers import get_new_room, get_random_unexplored_direction, get_opposite_direction, bf_backtrack
+from random import randint
 
 # import random
 from ast import literal_eval
@@ -38,11 +39,11 @@ def traverse_graph(room_graph, player):
     exits = player.current_room.get_exits()
 
     traversal_graph = {
-        0: get_new_room(exits)
+        player.current_room.id: get_new_room(exits)
     }
     # keep track of a room stack, starting at first room
     to_visit = Stack()
-    to_visit.push(0)
+    to_visit.push(player.current_room.id)
 
     # while there's a room in the stack
     while to_visit.size() > 0 and len(traversal_graph) < len(room_graph):
@@ -82,11 +83,13 @@ def traverse_graph(room_graph, player):
 while len(traversal_path) > 960 or traversal_path == []: # modification
     # TRAVERSAL TEST
     visited_rooms = set()
-    player.current_room = world.starting_room
+    random_room = world.rooms[randint(0, len(world.rooms) - 1)] # modification
+    # player.current_room = world.starting_room
+    player.current_room = random_room # modification
     
     traversal_path = [] # modification
     traverse_graph(room_graph, player) # modification
-    player.current_room = world.starting_room # modification
+    player.current_room = random_room # modification
 
     visited_rooms.add(player.current_room)
 
